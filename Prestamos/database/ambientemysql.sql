@@ -1,29 +1,37 @@
-CREATE DATABASE Prestamos;
+CREATE DATABASE IF NOT EXISTS Prestamos;
 
 USE Prestamos;
 
-CREATE TABLE CatClientes (
+CREATE TABLE IF NOT EXISTS CatClientes (
 	idCliente INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	cNombre VARCHAR(30),
 	cApellidoPaterno VARCHAR(30),
-	cApellidoMaterno VARCHAR(30),
+	cApellidoMaterno VARCHAR(30) DEFAULT '',
 	dFechaNacimiento TIMESTAMP,
-	bPrestamoBloqueado BOOLEAN,
-	bActivo BOOLEAN
+	bPrestamoBloqueado BOOLEAN DEFAULT 0,
+	bActivo BOOLEAN DEFAULT 1,
+	dFechaRegistro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	dFechaUltimaModificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+DELETE FROM CatClientes;
 
 INSERT INTO CatClientes (cNombre, cApellidoPaterno, cApellidoMaterno, dFechaNacimiento, bPrestamoBloqueado, bActivo)
 VALUES( 'Victor Manuel', 'Vizcarra', 'Bejarano', '19930301', 0, 1 );
 
-CREATE TABLE CatMontosPlazos (
+CREATE TABLE IF NOT EXISTS CatMontosPlazos (
 	idMonto INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	cDescripcion VARCHAR(100),
 	nMonto BIGINT,
 	nPlazos INTEGER,
 	nInteres BIGINT,
 	nAbono FLOAT,
-	bActivo BOOLEAN
+	bActivo BOOLEAN DEFAULT 1,
+	dFechaRegistro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	dFechaUltimaModificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+DELETE FROM CatMontosPlazos;
 
 INSERT INTO CatMontosPlazos ( cDescripcion, nMonto, nPlazos, nInteres, nAbono, bActivo )
 VALUES ( '$3000 a 12 pagos quincenales de plazo' , 3000,12,900,325,1 ) 
@@ -57,5 +65,18 @@ VALUES ( '$3000 a 12 pagos quincenales de plazo' , 3000,12,900,325,1 )
 ,( '$40000 a 36 pagos quincenales de plazo' , 40000,36,24000,1777.78,1 ) 
 ,( '$40000 a 42 pagos quincenales de plazo' , 40000,42,26800,1590.48,1 );
 
---	SELECT * FROM CatClientes;
---	SELECT * FROM CatMontosPlazos;
+
+USE prestamos;
+
+CREATE TABLE IF NOT EXISTS tbPrestamos (
+	idPrestamo INTEGER AUTO_INCREMENT PRIMARY KEY,
+	idCliente INTEGER UNSIGNED,
+	idMonto INTEGER UNSIGNED,
+	dFechaSolicitud TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	bActivo BOOLEAN DEFAULT 1,
+	dFechaRegistro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	dFechaUltimaModificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT FOREIGN KEY (idCliente) REFERENCES CatClientes (idCliente),
+	CONSTRAINT FOREIGN KEY (idMonto) REFERENCES CatMontosPlazos (idMonto)
+);
+
